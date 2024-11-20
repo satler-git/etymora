@@ -19,3 +19,4 @@ publish = false
 # publish.workspace = true
 
 [workspace.dependencies]
+markdown-builder = "1.0.0"
