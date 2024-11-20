@@ -1,0 +1,15 @@
+[package]
+name                 = "example-adapter"
+version.workspace    = true
+authors.workspace    = true
+edition.workspace    = true
+license.workspace    = true
+repository.workspace = true
+publish.workspace    = true
+
+[dependencies]
+etymora-traits      = { path = "../etymora-traits/" }
+thiserror.workspace = true
+
+[dev-dependencies]
+tokio.workspace = true
