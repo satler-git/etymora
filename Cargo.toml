@@ -1,22 +1,17 @@
 [workspace]
 
-members = ["crates/*"]
+members  = ["crates/*"]
 resolver = "2"
 
 [workspace.package]
-version = "0.1.0"
-authors = ["satler-git"]
-edition = "2021"
-license = "MIT"
+version    = "0.1.0"
+authors    = ["satler-git"]
+edition    = "2021"
+license    = "MIT"
 repository = "https://github.com/satler-git/etymora"
-publish = false
-
-# version.workspace = true
-# authors.workspace = true
-# edition.workspace = true
-# license.workspace = true
-# repository.workspace = true
-# publish.workspace = true
+publish    = false
 
 [workspace.dependencies]
 markdown-builder = "1.0.0"
+thiserror        = "2.0.3"
+tokio            = { version = "1.41.1", features = ["full"] }
