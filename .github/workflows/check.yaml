@@ -1,0 +1,32 @@
+name: Check with Nix
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+env:
+  CARGO_TERM_COLOR: always
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        target:
+          - x86_64-unknown-linux-gnu
+        include:
+          - target: x86_64-unknown-linux-gnu
+            os: ubuntu-latest
+
+    runs-on: ${{ matrix.os }}
+
+    steps:
+      - uses: actions/checkout@v4
+      - uses: DeterminateSystems/flake-checker-action@v4
+
+      - uses: DeterminateSystems/nix-installer-action@v3
+        with:
+          github_access_token: ${{ secrets.GITHUB_TOKEN }}
+      - uses: DeterminateSystems/magic-nix-cache-action@9ab3ce70d6d64cd6e4f4506ccb757152453ccaa6
+      - name: nix flake check
+        run: nix flake check --all-systems
