@@ -74,8 +74,8 @@
                 pass_filenames = false;
               };
 
-              clippy.enable = true;
-              cargo-check.enable = true;
+              # clippy.enable = true;
+              # cargo-check.enable = true;
             };
           };
 
