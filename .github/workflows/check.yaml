@@ -3,9 +3,10 @@ name: Check with Nix
 on:
   push:
     paths:
-      - "*.rs"
-      - "*.toml"
-      - "*.nix"
+      - "**.rs"
+      - "**.toml"
+      - "**.nix"
+      - ".github/workflows/*"
       - "flake.lock"
   pull_request:
   workflow_dispatch:
