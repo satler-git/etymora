@@ -99,7 +99,7 @@
               };
 
               # clippy.enable = true;
-              cargo-check.enable = true;
+              # cargo-check.enable = true;
             };
           };
 
