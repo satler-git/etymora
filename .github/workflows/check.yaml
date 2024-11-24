@@ -2,6 +2,8 @@ name: Check with Nix
 
 on:
   push:
+    branches:
+      - 'main'
     paths:
       - "**.rs"
       - "**.toml"
