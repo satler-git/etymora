@@ -4,12 +4,13 @@ members  = ["crates/*"]
 resolver = "2"
 
 [workspace.package]
-version    = "0.1.0"
-authors    = ["satler-git"]
-edition    = "2021"
-license    = "MIT"
-repository = "https://github.com/satler-git/etymora"
-publish    = false
+version      = "0.1.0"
+authors      = ["satler-git"]
+edition      = "2021"
+license      = "MIT"
+repository   = "https://github.com/satler-git/etymora"
+publish      = false
+rust-version = "1.82.0"
 
 [workspace.dependencies]
 markdown-builder = "1.0.0"
