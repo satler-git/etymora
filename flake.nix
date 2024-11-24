@@ -20,12 +20,15 @@
     };
 
     treefmt-nix.url = "github:numtide/treefmt-nix";
+
+    crane.url = "github:ipetkov/crane";
   };
 
   outputs =
     inputs@{
       self,
       flake-parts,
+      crane,
       ...
     }:
     flake-parts.lib.mkFlake { inherit inputs; } {
@@ -47,8 +50,29 @@
           system,
           pkgs,
           lib,
+          self',
           ...
         }:
+        let
+          rust-bin = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
+          craneLib = (crane.mkLib pkgs).overrideToolchain rust-bin;
+
+          commonArgs = {
+            src = craneLib.cleanCargoSource ./.;
+            strictDeps = true;
+
+            buildInputs = with pkgs; [ ];
+
+            nativeBuildInputs = with pkgs; [ ];
+          };
+
+          cargoArtifacts = craneLib.buildDepsOnly (
+            commonArgs
+            // {
+              pname = "etymora-deps";
+            }
+          );
+        in
         {
           _module.args.pkgs = import inputs.nixpkgs {
             inherit system;
@@ -79,13 +103,26 @@
             };
           };
 
+          packages.default = self'.packages.etymora;
+
+          packages.etymora = craneLib.buildPackage (
+            commonArgs
+            // {
+              inherit cargoArtifacts;
+              pname = "etymora";
+              version = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).workspace.package.version;
+              cargoExtraArgs = "-p etymora";
+            }
+          );
+
           devShells.default = pkgs.mkShell {
             inputsFrom = [ config.pre-commit.devShell ];
 
             buildInputs = with pkgs; [
               cargo-expand
               cargo-nextest
-              rust-bin.stable.latest.default
+
+              rust-bin
             ];
           };
         };
