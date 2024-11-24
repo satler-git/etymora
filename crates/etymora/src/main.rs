@@ -2,6 +2,14 @@ use clap::Parser;
 use shadow_rs::shadow;
 use tracing::{info, Level};
 
+#[cfg(feature = "mimalloc")]
+#[global_allocator]
+static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
+#[cfg(all(feature = "jemalloc", not(target_env = "msvc")))]
+#[global_allocator]
+static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 shadow!(build);
 
 #[derive(Parser, Debug)]
