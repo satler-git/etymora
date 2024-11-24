@@ -54,7 +54,7 @@
           ...
         }:
         let
-          rust-bin = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain;
+          rust-bin = pkgs.rust-bin.fromRustupToolchainFile ./rust-toolchain.toml;
           craneLib = (crane.mkLib pkgs).overrideToolchain rust-bin;
 
           commonArgs = {
