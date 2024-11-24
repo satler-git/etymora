@@ -9,6 +9,14 @@ use tracing::{info, Level};
 use std::error::Error;
 use std::time::Duration;
 
+#[cfg(feature = "mimalloc")]
+#[global_allocator]
+static ALLOC: mimalloc::MiMalloc = mimalloc::MiMalloc;
+
+#[cfg(all(feature = "jemalloc", not(target_env = "msvc")))]
+#[global_allocator]
+static ALLOC: jemallocator::Jemalloc = jemallocator::Jemalloc;
+
 shadow!(build);
 
 #[derive(Parser, Debug)]
