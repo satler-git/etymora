@@ -1,3 +1,4 @@
+#[derive(Debug)]
 pub struct Word(String);
 
 pub use markdown_builder;

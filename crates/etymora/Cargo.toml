@@ -16,6 +16,8 @@ etymora-traits = { path = "../etymora-traits/" }
 
 thiserror.workspace = true
 tokio.workspace     = true
+tracing.workspace   = true
+tracing-subscriber  = "0.3.18"
 
 [build-dependencies]
 shadow-rs = "0.36.0"

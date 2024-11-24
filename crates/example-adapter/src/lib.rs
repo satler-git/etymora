@@ -2,6 +2,7 @@ use etymora_traits::markdown_builder::Markdown;
 use etymora_traits::{Dictionary, Word};
 use thiserror::Error;
 
+#[derive(Debug)]
 pub struct ExampleDictionary;
 
 #[derive(Debug, Error)]
@@ -13,10 +14,12 @@ pub enum ExampleError {
 impl Dictionary for ExampleDictionary {
     type Error = ExampleError;
 
+    #[tracing::instrument]
     async fn exits(&self, _word: &Word) -> Result<bool, Self::Error> {
         Ok(true)
     }
 
+    #[tracing::instrument]
     async fn lookup_ditail(&self, word: &Word) -> Result<Markdown, Self::Error> {
         let mut doc = Markdown::new();
 

@@ -1,5 +1,6 @@
 use clap::Parser;
 use shadow_rs::shadow;
+use tracing::{info, Level};
 
 shadow!(build);
 
@@ -9,4 +10,10 @@ struct Args {}
 
 fn main() {
     let _args = Args::parse();
+
+    tracing_subscriber::fmt()
+        .with_max_level(Level::INFO)
+        .with_ansi(false)
+        .with_writer(std::io::stderr)
+        .init();
 }

@@ -11,6 +11,7 @@ rust-version.workspace = true
 [dependencies]
 etymora-traits      = { path = "../etymora-traits/" }
 thiserror.workspace = true
+tracing.workspace   = true
 
 [dev-dependencies]
 tokio.workspace = true
