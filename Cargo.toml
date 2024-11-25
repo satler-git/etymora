@@ -13,6 +13,7 @@ publish      = false
 rust-version = "1.82.0"
 
 [workspace.dependencies]
+lsp-types        = "0.97.0"
 markdown-builder = "1.0.0"
 thiserror        = "2.0.3"
 tokio            = { version = "1.41.1", features = ["full"] }

@@ -9,6 +9,13 @@ impl Word {
     }
 }
 
+fn from_markdown(value: markdown_builder::Markdown) -> lsp_types::MarkupContent {
+    lsp_types::MarkupContent {
+        kind: lsp_types::MarkupKind::Markdown,
+        value: value.render(),
+    }
+}
+
 impl<T: Into<String>> From<T> for Word {
     fn from(value: T) -> Self {
         let w: String = value.into().trim().into();
