@@ -29,5 +29,13 @@ thiserror.workspace = true
 tracing.workspace  = true
 tracing-subscriber = "0.3.18"
 
+jemallocator = { version = "0.5.4", optional = true }
+mimalloc     = { version = "0.1.43", optional = true }
+
 [build-dependencies]
 shadow-rs = "0.36.0"
+
+[features]
+default  = []
+mimalloc = ["dep:mimalloc"]
+jemalloc = ["dep:jemallocator"]
