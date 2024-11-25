@@ -35,9 +35,9 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 let mut interval = tokio::time::interval(Duration::from_secs(1));
                 loop {
                     interval.tick().await;
-                    // if client.emit(TickEvent).is_err() {
-                    //     break;
-                    // }
+                    if client.emit(server::TickEvent).is_err() {
+                        break;
+                    }
                 }
             }
         });

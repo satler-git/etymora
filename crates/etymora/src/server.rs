@@ -75,7 +75,7 @@ impl LanguageServer for ServerState {
     }
 }
 
-struct TickEvent;
+pub(crate) struct TickEvent;
 
 impl ServerState {
     pub(crate) fn new_router(client: ClientSocket) -> Router<Self> {
