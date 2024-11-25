@@ -5,7 +5,7 @@ use thiserror::Error;
 #[derive(Debug)]
 pub struct ExampleDictionary;
 
-#[derive(Debug, Error)]
+#[derive(Debug, Error, PartialEq, Eq)]
 pub enum ExampleError {
     #[error("Example error has occrued")]
     Error,
