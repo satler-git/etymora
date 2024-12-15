@@ -1,13 +1,13 @@
 mod dict_handler;
 mod error;
+mod server;
 
 use clap::Parser;
 use shadow_rs::shadow;
 
-use tracing::{info, Level};
+use tracing::Level;
 
 use std::error::Error;
-use std::time::Duration;
 
 #[cfg(feature = "mimalloc")]
 #[global_allocator]
@@ -32,6 +32,12 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_ansi(false)
         .with_writer(std::io::stderr)
         .init();
+
+    let server = server::Etymora::init()?;
+
+    server.main_loop().await?;
+
+    server.shutdown()?;
 
     Ok(())
 }
