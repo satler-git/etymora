@@ -7,6 +7,7 @@ name = "adapter-example"
 version = "0.1.0"
 dependencies = [
  "etymora-traits",
+ "serde",
  "thiserror",
  "tokio",
  "tracing",
@@ -320,6 +321,7 @@ version = "0.1.0"
 dependencies = [
  "lsp-types",
  "markdown-builder",
+ "serde",
 ]
 
 [[package]]

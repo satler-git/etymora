@@ -29,13 +29,19 @@ impl std::fmt::Display for Word {
     }
 }
 
-pub trait Dictionary {
+pub trait Dictionary: Sized {
     type Error;
+    type InitInput: serde::Serialize;
+
+    fn init(
+        input: Self::InitInput,
+    ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send;
 
     fn exits(
         &self,
         word: &Word,
     ) -> impl std::future::Future<Output = Result<bool, Self::Error>> + Send;
+
     fn lookup_ditail(
         &self,
         word: &Word,

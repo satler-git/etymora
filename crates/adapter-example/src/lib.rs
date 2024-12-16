@@ -2,7 +2,7 @@ use etymora_traits::markdown_builder::Markdown;
 use etymora_traits::{Dictionary, Word};
 use thiserror::Error;
 
-#[derive(Debug)]
+#[derive(Debug, serde::Serialize)]
 pub struct ExampleDictionary;
 
 #[derive(Debug, Error, PartialEq, Eq)]
@@ -13,6 +13,11 @@ pub enum ExampleError {
 
 impl Dictionary for ExampleDictionary {
     type Error = ExampleError;
+    type InitInput = ();
+
+    async fn init(_: Self::InitInput) -> Result<Self, Self::Error> {
+        Ok(ExampleDictionary)
+    }
 
     #[tracing::instrument]
     async fn exits(&self, _word: &Word) -> Result<bool, Self::Error> {
