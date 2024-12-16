@@ -84,9 +84,12 @@
           treefmt = {
             projectRootFile = "flake.nix";
 
+            programs.actionlint.enable = true;
             programs.nixfmt.enable = true;
-            programs.taplo.enable = true;
             programs.rustfmt.enable = true;
+            programs.stylua.enable = true;
+            programs.taplo.enable = true;
+            programs.yamlfmt.enable = true;
           };
 
           pre-commit = {

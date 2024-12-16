@@ -1,5 +1,4 @@
 name: Check with Nix
-
 on:
   push:
     branches:
@@ -12,10 +11,8 @@ on:
       - "flake.lock"
   pull_request:
   workflow_dispatch:
-
 env:
   CARGO_TERM_COLOR: always
-
 jobs:
   check:
     strategy:
@@ -25,13 +22,10 @@ jobs:
         include:
           - target: x86_64-unknown-linux-gnu
             os: ubuntu-latest
-
     runs-on: ${{ matrix.os }}
-
     steps:
       - uses: actions/checkout@v4
       - uses: DeterminateSystems/flake-checker-action@v4
-
       - uses: DeterminateSystems/nix-installer-action@v3
         with:
           github_access_token: ${{ secrets.GITHUB_TOKEN }}
