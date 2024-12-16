@@ -6,7 +6,7 @@ pub(crate) type Result<T> = std::result::Result<T, EtymoraError>;
 #[derive(Debug, Error)]
 pub(crate) enum EtymoraError {
     #[error("{0}")]
-    ExampleAdapterError(#[source] example_adapter::ExampleError),
+    ExampleAdapterError(#[source] adapter_example::ExampleError),
     #[error("{0}")]
     ProcotolError(#[source] lsp_server::ProtocolError),
     #[error("Error occurs in desirializing, this is a type of ProtocolError: {0}")]

@@ -1,5 +1,5 @@
 [package]
-name                   = "example-adapter"
+name                   = "adapter-example"
 version.workspace      = true
 authors.workspace      = true
 edition.workspace      = true

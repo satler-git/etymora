@@ -2,7 +2,7 @@ use crate::error::EtymoraError;
 
 #[derive(Debug)]
 pub(crate) enum Dicts {
-    ExampleDict(example_adapter::ExampleDictionary),
+    ExampleDict(adapter_example::ExampleDictionary),
 }
 
 impl etymora_traits::Dictionary for Dicts {
