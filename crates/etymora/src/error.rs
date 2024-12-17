@@ -15,16 +15,21 @@ pub(crate) enum EtymoraError {
     StdIOError(#[source] std::io::Error),
     #[error("Sending a message failed. The message: {0:?}")]
     SendMassageError(lsp_server::Message),
+    #[error("{0}")]
+    FsError(crate::text_document::FsError),
 }
 
 impl From<&EtymoraError> for ErrorCode {
     fn from(value: &EtymoraError) -> Self {
         match value {
             EtymoraError::ExampleAdapterError(_) => ErrorCode::InternalError,
-            EtymoraError::ProcotolError(_) => ErrorCode::InvalidRequest,
-            EtymoraError::DesirializeError(_) => ErrorCode::InvalidParams,
             EtymoraError::StdIOError(_) => ErrorCode::InternalError,
             EtymoraError::SendMassageError(_) => ErrorCode::InternalError,
+
+            EtymoraError::ProcotolError(_) => ErrorCode::InvalidRequest,
+
+            EtymoraError::DesirializeError(_) => ErrorCode::InvalidParams,
+            EtymoraError::FsError(_) => ErrorCode::InvalidParams,
         }
     }
 }

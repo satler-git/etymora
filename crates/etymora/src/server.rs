@@ -1,10 +1,10 @@
 //! Server
 
 use either::Either;
+
 use lsp_server::{
     Connection, ExtractError, IoThreads, Message, RequestId, Response, ResponseError,
 };
-
 use lsp_types::{
     request::{HoverRequest, Request as _},
     Hover, HoverParams, HoverProviderCapability, InitializeParams, ServerCapabilities,
@@ -14,6 +14,7 @@ use crate::error::{EtymoraError, Result};
 
 use tracing::{debug, info};
 
+/// Server State
 pub(crate) struct Etymora {
     connection: Connection,
     io_threads: IoThreads,
@@ -23,6 +24,7 @@ pub(crate) struct Etymora {
 impl Etymora {
     /// Generate(static) Server Capabilities
     /// `..Default::default()` cannot be used in a const context.
+    /// * `HoverProvider` with `WorkDoneProgress`
     #[inline]
     fn gen_server_capabilities() -> ServerCapabilities {
         ServerCapabilities {

@@ -1,6 +1,7 @@
 mod dict_handler;
 mod error;
 mod server;
+mod text_document;
 
 use clap::Parser;
 use shadow_rs::shadow;
