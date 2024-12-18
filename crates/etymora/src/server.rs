@@ -13,6 +13,7 @@ use lsp_types::{
 use crate::{
     dict_handler,
     error::{EtymoraError, Result},
+    text_document::{self, FileSystem},
 };
 
 use tracing::{debug, info};
@@ -23,6 +24,7 @@ pub(crate) struct Etymora {
     io_threads: IoThreads,
     params: InitializeParams, // TODO: user config
     dict: Option<dict_handler::Dicts>,
+    fs: FileSystem,
 }
 
 impl Etymora {
@@ -62,6 +64,7 @@ impl Etymora {
             connection,
             io_threads,
             params,
+            fs: FileSystem::default(),
             dict: None,
         })
     }

@@ -3,11 +3,13 @@
 //! Exstract a word from a line.
 //! TODO: multiple word for some English idioms
 
+use etymora_traits::Word;
 use lsp_types::Position;
 use rustc_hash::FxHashMap;
 
-use std::{ops::Deref, path::PathBuf};
+use std::path::PathBuf;
 use tokio::fs;
+use tokio::io::{self, AsyncBufReadExt, BufReader};
 
 #[derive(Debug, thiserror::Error)]
 pub(crate) enum FsError {
@@ -34,19 +36,60 @@ fn try_from_uri(value: &lsp_types::Uri) -> Result<PathBuf, FsError> {
     }
 }
 
+impl FileSystem {
+    async fn read_uri_line(
+        &mut self,
+        uri: &lsp_types::Uri,
+        position: &Position,
+    ) -> Result<String, FsError> {
+        self.read_line(try_from_uri(uri)?, position).await
+    }
+
+    async fn read_line(&mut self, path: PathBuf, position: &Position) -> Result<String, FsError> {
+        if !self.map.contains_key(&path) {
+            self.map.insert(
+                path.clone(),
+                fs::File::open(&path).await.map_err(FsError::IoError)?,
+            );
+        }
+
+        let file = self.map.get_mut(&path).unwrap(); // TODO: 多分IO重い
+        let reader = BufReader::new(file);
+
+        let mut lines = reader.lines();
+        let mut current_line = 0;
+
+        while let Some(line) = lines.next_line().await.map_err(FsError::IoError)? {
+            if current_line == position.line {
+                return Ok(line);
+            }
+            current_line += 1;
+        }
+
+        Ok("".into())
+    }
+}
+
 #[cfg(test)]
 mod tests {
+    use std::fs::Permissions;
     use std::str::FromStr;
 
     use super::*;
     use lsp_types::Uri;
 
+    use tempfile::TempDir;
     use tokio::fs;
+    use tokio::io::AsyncWriteExt;
 
-    async fn create_tempfile(path_suffix: &str) -> Result<(fs::File, PathBuf), std::io::Error> {
-        let path = tempfile::tempdir()?.path().join(path_suffix);
+    async fn create_tempfile(
+        path_suffix: &str,
+    ) -> Result<(fs::File, PathBuf, TempDir), std::io::Error> {
+        let dir = tempfile::tempdir()?;
 
-        Ok((fs::File::create_new(&path).await?, path))
+        let path = dir.path().join(path_suffix);
+
+        Ok((fs::File::create(&path).await?, path, dir)) // dirを返さないと消されちゃう
     }
 
     #[tokio::test]
@@ -58,6 +101,38 @@ mod tests {
 
         // Wrong scheme
         assert!(try_from_uri(&Uri::from_str("https://example.com/")?).is_err());
+        Ok(())
+    }
+
+    #[tokio::test]
+    async fn test_read_line() -> Result<(), Box<dyn std::error::Error>> {
+        let (mut file, path, _tempdir) = create_tempfile("test1").await?;
+
+        file.write_all(
+            b"0
+1
+2
+3
+4
+5
+        ",
+        )
+        .await?;
+
+        let mut fs = FileSystem::default();
+
+        assert_eq!(
+            fs.read_line(
+                path,
+                &Position {
+                    line: 3,
+                    character: 0,
+                },
+            )
+            .await?,
+            "3"
+        );
+
         Ok(())
     }
 }
