@@ -54,6 +54,11 @@ impl FileSystem {
         }
 
         let file = self.map.get_mut(path).unwrap(); // TODO: 多分IO重い
+
+        file.seek(SeekFrom::Start(0))
+            .await
+            .map_err(FsError::IoError)?;
+
         let reader = BufReader::new(file);
 
         let mut lines = reader.lines();
