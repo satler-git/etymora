@@ -9,7 +9,7 @@ use rustc_hash::FxHashMap;
 
 use std::path::PathBuf;
 use tokio::fs;
-use tokio::io::{self, AsyncBufReadExt, BufReader};
+use tokio::io::{AsyncBufReadExt, AsyncSeekExt, BufReader, SeekFrom};
 
 #[derive(Debug, thiserror::Error)]
 pub(crate) enum FsError {
@@ -37,23 +37,23 @@ fn try_from_uri(value: &lsp_types::Uri) -> Result<PathBuf, FsError> {
 }
 
 impl FileSystem {
-    async fn read_uri_line(
+    async fn read_line_uri(
         &mut self,
         uri: &lsp_types::Uri,
         position: &Position,
     ) -> Result<String, FsError> {
-        self.read_line(try_from_uri(uri)?, position).await
+        self.read_line(&try_from_uri(uri)?, position).await
     }
 
-    async fn read_line(&mut self, path: PathBuf, position: &Position) -> Result<String, FsError> {
-        if !self.map.contains_key(&path) {
+    async fn read_line(&mut self, path: &PathBuf, position: &Position) -> Result<String, FsError> {
+        if !self.map.contains_key(path) {
             self.map.insert(
                 path.clone(),
                 fs::File::open(&path).await.map_err(FsError::IoError)?,
             );
         }
 
-        let file = self.map.get_mut(&path).unwrap(); // TODO: 多分IO重い
+        let file = self.map.get_mut(path).unwrap(); // TODO: 多分IO重い
         let reader = BufReader::new(file);
 
         let mut lines = reader.lines();
@@ -123,11 +123,35 @@ mod tests {
 
         assert_eq!(
             fs.read_line(
-                path,
+                &path,
                 &Position {
-                    line: 3,
+                    line: 5,
                     character: 0,
                 },
+            )
+            .await?,
+            "5"
+        );
+
+        assert_eq!(
+            fs.read_line(
+                &path,
+                &Position {
+                    line: 0,
+                    character: 0,
+                },
+            )
+            .await?,
+            "0"
+        );
+
+        assert_eq!(
+            fs.read_line_uri(
+                &Uri::from_str(&format!("file://{}", path.to_str().unwrap()))?,
+                &Position {
+                    line: 3,
+                    character: 0
+                }
             )
             .await?,
             "3"
