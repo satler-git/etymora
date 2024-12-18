@@ -34,7 +34,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_writer(std::io::stderr)
         .init();
 
-    let server = server::Etymora::init()?;
+    let server = server::Etymora::init().await?;
 
     server.main_loop().await?;
 

@@ -10,7 +10,10 @@ use lsp_types::{
     Hover, HoverParams, HoverProviderCapability, InitializeParams, ServerCapabilities,
 };
 
-use crate::error::{EtymoraError, Result};
+use crate::{
+    dict_handler,
+    error::{EtymoraError, Result},
+};
 
 use tracing::{debug, info};
 
@@ -19,6 +22,7 @@ pub(crate) struct Etymora {
     connection: Connection,
     io_threads: IoThreads,
     params: InitializeParams, // TODO: user config
+    dict: Option<dict_handler::Dicts>,
 }
 
 impl Etymora {
@@ -37,7 +41,7 @@ impl Etymora {
         }
     }
 
-    pub(crate) fn init() -> Result<Etymora> {
+    pub(crate) async fn init() -> Result<Etymora> {
         info!("Starting LSP server");
 
         let server_capabilities = serde_json::to_value(Self::gen_server_capabilities()).unwrap();
@@ -58,6 +62,7 @@ impl Etymora {
             connection,
             io_threads,
             params,
+            dict: None,
         })
     }
 
