@@ -37,14 +37,6 @@ fn try_from_uri(value: &lsp_types::Uri) -> Result<PathBuf, FsError> {
 }
 
 impl FileSystem {
-    async fn read_line_uri(
-        &mut self,
-        uri: &lsp_types::Uri,
-        position: &Position,
-    ) -> Result<String, FsError> {
-        self.read_line(&try_from_uri(uri)?, position).await
-    }
-
     async fn read_line(&mut self, path: &PathBuf, position: &Position) -> Result<String, FsError> {
         if !self.map.contains_key(path) {
             self.map.insert(
@@ -73,11 +65,54 @@ impl FileSystem {
 
         Ok("".into())
     }
+
+    /// A wrapped function for `read_word`
+    pub(crate) async fn read_word_uri(
+        &mut self,
+        uri: &lsp_types::Uri,
+        position: &Position,
+    ) -> Result<Word, FsError> {
+        self.read_word(&try_from_uri(uri)?, position).await
+    }
+
+    /// read word
+    pub(crate) async fn read_word(
+        &mut self,
+        path: &PathBuf,
+        position: &Position,
+    ) -> Result<Word, FsError> {
+        Ok(extract_word_from_line(
+            self.read_line(path, position).await?,
+            position,
+        ))
+    }
+}
+
+fn extract_word_from_line(s: String, position: &Position) -> Word {
+    let mut return_string = String::default();
+    let mut is_return_word = false;
+    for (i, ci) in s.chars().enumerate() {
+        // dbg!(i, ci, is_return_word, &return_string, &s);
+        if i as u32 == position.character {
+            // カーソルの位置の単語を返すべきとしてマーク
+            is_return_word = true;
+        }
+        if !ci.is_ascii_alphabetic() {
+            if is_return_word {
+                break;
+            } else {
+                return_string = String::default()
+            }
+        } else {
+            return_string.push(ci);
+        }
+    }
+
+    return_string.into()
 }
 
 #[cfg(test)]
 mod tests {
-    use std::fs::Permissions;
     use std::str::FromStr;
 
     use super::*;
@@ -150,16 +185,86 @@ mod tests {
             "0"
         );
 
+        Ok(())
+    }
+
+    #[test]
+    fn test_extract_word_from_line() -> Result<(), Box<dyn std::error::Error>> {
         assert_eq!(
-            fs.read_line_uri(
-                &Uri::from_str(&format!("file://{}", path.to_str().unwrap()))?,
+            extract_word_from_line(
+                "testword\n".into(),
                 &Position {
-                    line: 3,
+                    line: 0,
                     character: 0
                 }
-            )
-            .await?,
-            "3"
+            ),
+            Word::from("testword".to_string())
+        );
+
+        assert_eq!(
+            extract_word_from_line(
+                "testword(6)\n".into(),
+                &Position {
+                    line: 0,
+                    character: 0
+                }
+            ),
+            Word::from("testword".to_string())
+        );
+
+        assert_eq!(
+            extract_word_from_line(
+                "testword!()[]{}&%\n".into(),
+                &Position {
+                    line: 0,
+                    character: 0
+                }
+            ),
+            Word::from("testword".to_string())
+        );
+
+        assert_eq!(
+            extract_word_from_line(
+                "testworD6\n".into(),
+                &Position {
+                    line: 0,
+                    character: 0
+                }
+            ),
+            Word::from("testworD".to_string())
+        );
+
+        assert_eq!(
+            extract_word_from_line(
+                "lorem ipsum\n".into(),
+                &Position {
+                    line: 0,
+                    character: 0
+                }
+            ),
+            Word::from("lorem".to_string())
+        );
+
+        assert_eq!(
+            extract_word_from_line(
+                "lorem ipsum\n".into(),
+                &Position {
+                    line: 0,
+                    character: 7
+                }
+            ),
+            Word::from("ipsum".to_string())
+        );
+
+        assert_eq!(
+            extract_word_from_line(
+                "".into(),
+                &Position {
+                    line: 0,
+                    character: 0
+                }
+            ),
+            Word::from("".to_string())
         );
 
         Ok(())
