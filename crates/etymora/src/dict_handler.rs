@@ -26,19 +26,16 @@ impl etymora_traits::Dictionary for Dicts {
     async fn init(input: &Self::InitInput) -> Result<Self, Self::Error> {
         match input {
             DictConfigs::Example(p) => Ok(Dicts::ExampleDict(
-                adapter_example::ExampleDictionary::init(&p)
+                adapter_example::ExampleDictionary::init(p)
                     .await
-                    .map_err(EtymoraError::ExampleAdapterError)?,
+                    .map_err(EtymoraError::ExampleAdapter)?,
             )),
         }
     }
 
     async fn exits(&self, word: &etymora_traits::Word) -> Result<bool, Self::Error> {
         match self {
-            Dicts::ExampleDict(d) => d
-                .exits(word)
-                .await
-                .map_err(EtymoraError::ExampleAdapterError),
+            Dicts::ExampleDict(d) => d.exits(word).await.map_err(EtymoraError::ExampleAdapter),
         }
     }
 
@@ -50,7 +47,7 @@ impl etymora_traits::Dictionary for Dicts {
             Dicts::ExampleDict(d) => d
                 .lookup_ditail(word)
                 .await
-                .map_err(EtymoraError::ExampleAdapterError),
+                .map_err(EtymoraError::ExampleAdapter),
         }
     }
 }

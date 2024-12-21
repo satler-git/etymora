@@ -6,30 +6,30 @@ pub(crate) type Result<T> = std::result::Result<T, EtymoraError>;
 #[derive(Debug, Error)]
 pub(crate) enum EtymoraError {
     #[error("{0}")]
-    ExampleAdapterError(#[source] adapter_example::ExampleError),
+    ExampleAdapter(#[source] adapter_example::ExampleError),
     #[error("{0}")]
-    ProcotolError(#[source] lsp_server::ProtocolError),
+    Protocol(#[source] lsp_server::ProtocolError),
     #[error("Error occurs in desirializing, this is a type of ProtocolError: {0}")]
-    DesirializeError(#[source] serde_json::Error),
+    Desirialize(#[source] serde_json::Error),
     #[error("Error occurs in stdio: {0}")]
-    StdIOError(#[source] std::io::Error),
+    StdIO(#[source] std::io::Error),
     #[error("Sending a message failed. The message: {0:?}")]
-    SendMassageError(lsp_server::Message),
+    SendMessage(lsp_server::Message),
     #[error("{0}")]
-    FsError(crate::text_document::FsError),
+    Fs(crate::text_document::FsError),
 }
 
 impl From<&EtymoraError> for ErrorCode {
     fn from(value: &EtymoraError) -> Self {
         match value {
-            EtymoraError::ExampleAdapterError(_) => ErrorCode::InternalError,
-            EtymoraError::StdIOError(_) => ErrorCode::InternalError,
-            EtymoraError::SendMassageError(_) => ErrorCode::InternalError,
+            EtymoraError::ExampleAdapter(_) => ErrorCode::InternalError,
+            EtymoraError::StdIO(_) => ErrorCode::InternalError,
+            EtymoraError::SendMessage(_) => ErrorCode::InternalError,
 
-            EtymoraError::ProcotolError(_) => ErrorCode::InvalidRequest,
+            EtymoraError::Protocol(_) => ErrorCode::InvalidRequest,
 
-            EtymoraError::DesirializeError(_) => ErrorCode::InvalidParams,
-            EtymoraError::FsError(_) => ErrorCode::InvalidParams,
+            EtymoraError::Desirialize(_) => ErrorCode::InvalidParams,
+            EtymoraError::Fs(_) => ErrorCode::InvalidParams,
         }
     }
 }

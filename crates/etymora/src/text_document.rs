@@ -109,15 +109,12 @@ fn extract_word_from_line(s: String, position: &Position) -> Option<Word> {
             } else {
                 return_string = None;
             }
+        } else if return_string.is_some() {
+            return_string.as_mut().unwrap().push(ci);
         } else {
-            if return_string.is_some() {
-                return_string.as_mut().unwrap().push(ci);
-            } else {
-                return_string = Some(format!("{ci}"));
-            }
+            return_string = Some(format!("{ci}"));
         }
     }
-
     return_string.map(|s| s.to_lowercase().into())
 }
 

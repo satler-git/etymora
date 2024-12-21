@@ -61,17 +61,17 @@ impl Etymora {
         let (connection, io_threads) = Connection::stdio();
 
         let params: InitializeParams = match connection.initialize(server_capabilities) {
-            Ok(it) => serde_json::from_value(it).map_err(EtymoraError::DesirializeError)?,
+            Ok(it) => serde_json::from_value(it).map_err(EtymoraError::Desirialize)?,
             Err(e) => {
                 if e.channel_is_disconnected() {
-                    io_threads.join().map_err(EtymoraError::StdIOError)?;
+                    io_threads.join().map_err(EtymoraError::StdIO)?;
                 }
-                return Err(EtymoraError::ProcotolError(e));
+                return Err(EtymoraError::Protocol(e));
             }
         };
 
         let config: Config = if let Some(options) = params.initialization_options {
-            serde_json::from_value(options).map_err(EtymoraError::DesirializeError)?
+            serde_json::from_value(options).map_err(EtymoraError::Desirialize)?
         } else {
             warn!("InitializeOptions is empty. Using the default Config");
             Config::default()
@@ -91,23 +91,20 @@ impl Etymora {
     pub(crate) fn shutdown(self) -> Result<()> {
         info!("Shutting down server");
 
-        self.io_threads.join().map_err(EtymoraError::StdIOError)
+        self.io_threads.join().map_err(EtymoraError::StdIO)
     }
 
     pub(crate) async fn main_loop(&self) -> Result<()> {
         for msg in &self.connection.receiver {
             // handle shutdown
-            match &msg {
-                Message::Request(req) => {
-                    if self
-                        .connection
-                        .handle_shutdown(&req)
-                        .map_err(EtymoraError::ProcotolError)?
-                    {
-                        return Ok(());
-                    }
+            if let Message::Request(req) = &msg {
+                if self
+                    .connection
+                    .handle_shutdown(req)
+                    .map_err(EtymoraError::Protocol)?
+                {
+                    return Ok(());
                 }
-                _ => (),
             }
 
             debug!("Got message: {msg:?}");
@@ -155,7 +152,7 @@ impl Etymora {
                 &params.text_document_position_params.position,
             )
             .await
-            .map_err(EtymoraError::FsError)?;
+            .map_err(EtymoraError::Fs)?;
 
         if word.is_none() | self.dict.is_none() {
             // ワードがない場合はなにもなく返す
@@ -206,7 +203,7 @@ impl Etymora {
         self.connection
             .sender
             .send(Message::Response(resp))
-            .map_err(|e| EtymoraError::SendMassageError(e.0))
+            .map_err(|e| EtymoraError::SendMessage(e.0))
     }
 
     #[allow(dead_code)]
@@ -228,7 +225,7 @@ impl Etymora {
         self.connection
             .sender
             .send(Message::Notification(noti))
-            .map_err(|e| EtymoraError::SendMassageError(e.0))
+            .map_err(|e| EtymoraError::SendMessage(e.0))
     }
 
     #[allow(dead_code)]
@@ -250,7 +247,7 @@ impl Etymora {
                     .unwrap(),
                 },
             ))
-            .map_err(|e| EtymoraError::SendMassageError(e.0))
+            .map_err(|e| EtymoraError::SendMessage(e.0))
     }
 
     #[allow(dead_code)]
@@ -271,7 +268,7 @@ impl Etymora {
                     .unwrap(),
                 },
             ))
-            .map_err(|e| EtymoraError::SendMassageError(e.0))
+            .map_err(|e| EtymoraError::SendMessage(e.0))
     }
 }
 
