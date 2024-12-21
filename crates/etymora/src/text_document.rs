@@ -76,7 +76,7 @@ impl FileSystem {
         &self,
         uri: &lsp_types::Uri,
         position: &Position,
-    ) -> Result<Word, FsError> {
+    ) -> Result<Option<Word>, FsError> {
         self.read_word(&try_from_uri(uri)?, position).await
     }
 
@@ -85,7 +85,7 @@ impl FileSystem {
         &self,
         path: &PathBuf,
         position: &Position,
-    ) -> Result<Word, FsError> {
+    ) -> Result<Option<Word>, FsError> {
         Ok(extract_word_from_line(
             self.read_line(path, position).await?,
             position,
@@ -93,8 +93,9 @@ impl FileSystem {
     }
 }
 
-fn extract_word_from_line(s: String, position: &Position) -> Word {
-    let mut return_string = String::default();
+/// Extract the word(lowercase, and ascii alphabet only) at the cursor position
+fn extract_word_from_line(s: String, position: &Position) -> Option<Word> {
+    let mut return_string: Option<String> = None;
     let mut is_return_word = false;
     for (i, ci) in s.chars().enumerate() {
         // dbg!(i, ci, is_return_word, &return_string, &s);
@@ -106,14 +107,18 @@ fn extract_word_from_line(s: String, position: &Position) -> Word {
             if is_return_word {
                 break;
             } else {
-                return_string = String::default()
+                return_string = None;
             }
         } else {
-            return_string.push(ci);
+            if return_string.is_some() {
+                return_string.as_mut().unwrap().push(ci);
+            } else {
+                return_string = Some(format!("{ci}"));
+            }
         }
     }
 
-    return_string.into()
+    return_string.map(|s| s.to_lowercase().into())
 }
 
 #[cfg(test)]
@@ -164,7 +169,7 @@ mod tests {
         )
         .await?;
 
-        let mut fs = FileSystem::default();
+        let fs = FileSystem::default();
 
         assert_eq!(
             fs.read_line(
@@ -203,7 +208,7 @@ mod tests {
                     character: 0
                 }
             ),
-            Word::from("testword".to_string())
+            Some(Word::from("testword".to_string()))
         );
 
         assert_eq!(
@@ -214,7 +219,7 @@ mod tests {
                     character: 0
                 }
             ),
-            Word::from("testword".to_string())
+            Some(Word::from("testword".to_string()))
         );
 
         assert_eq!(
@@ -225,7 +230,7 @@ mod tests {
                     character: 0
                 }
             ),
-            Word::from("testword".to_string())
+            Some(Word::from("testword".to_string()))
         );
 
         assert_eq!(
@@ -236,7 +241,7 @@ mod tests {
                     character: 0
                 }
             ),
-            Word::from("testworD".to_string())
+            Some(Word::from("testword".to_string()))
         );
 
         assert_eq!(
@@ -247,7 +252,7 @@ mod tests {
                     character: 0
                 }
             ),
-            Word::from("lorem".to_string())
+            Some(Word::from("lorem".to_string()))
         );
 
         assert_eq!(
@@ -258,7 +263,7 @@ mod tests {
                     character: 7
                 }
             ),
-            Word::from("ipsum".to_string())
+            Some(Word::from("ipsum".to_string()))
         );
 
         assert_eq!(
@@ -269,7 +274,7 @@ mod tests {
                     character: 0
                 }
             ),
-            Word::from("".to_string())
+            None
         );
 
         Ok(())
