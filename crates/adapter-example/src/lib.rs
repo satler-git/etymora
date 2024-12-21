@@ -1,4 +1,4 @@
-use etymora_traits::markdown_builder::Markdown;
+use etymora_traits::markdown_builder::{Link, Markdown};
 use etymora_traits::{Dictionary, Word};
 use thiserror::Error;
 
@@ -10,6 +10,9 @@ pub enum ExampleError {
     #[error("Example error has occrued")]
     Error,
 }
+
+const CONFIG_URL: &'static str =
+    "https://github.com/satler-git/etymora/blob/main/config-examples/etymora.lua";
 
 impl Dictionary for ExampleDictionary {
     type Error = ExampleError;
@@ -30,7 +33,13 @@ impl Dictionary for ExampleDictionary {
 
         doc.header1(format!("{word}"));
 
-        doc.paragraph(format!("{word} meaning is idk..."));
+        doc.paragraph(
+            "This message will may be seen when you didn't add the dictionary configuration.",
+        );
+
+        doc.paragraph(format!(
+            "The sample configuration can be viewed [here]({CONFIG_URL})."
+        ));
 
         Ok(Some(doc))
     }
@@ -56,6 +65,6 @@ mod tests {
             .unwrap()
             .render();
 
-        assert_eq!(doc.as_str(), "# lang\n\nlang meaning is idk...\n");
+        assert_eq!(doc.as_str(), "# lang\n\nThis message will may be seen when you didn't add the dictionary configuration.\n\nThe sample configuration can be viewed\n[here](https://github.com/satler-git/etymora/blob/main/config-examples/etymora.lua).\n");
     }
 }
