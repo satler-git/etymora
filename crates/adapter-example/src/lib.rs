@@ -25,14 +25,14 @@ impl Dictionary for ExampleDictionary {
     }
 
     #[tracing::instrument]
-    async fn lookup_ditail(&self, word: &Word) -> Result<Markdown, Self::Error> {
+    async fn lookup_ditail(&self, word: &Word) -> Result<Option<Markdown>, Self::Error> {
         let mut doc = Markdown::new();
 
         doc.header1(format!("{word}"));
 
         doc.paragraph(format!("{word} meaning is idk..."));
 
-        Ok(doc)
+        Ok(Some(doc))
     }
 }
 
@@ -49,7 +49,13 @@ mod tests {
     #[tokio::test]
     async fn text_example_render() {
         let dict = ExampleDictionary;
-        let doc = dict.lookup_ditail(&"lang".into()).await.unwrap().render();
+        let doc = dict
+            .lookup_ditail(&"lang".into())
+            .await
+            .unwrap()
+            .unwrap()
+            .render();
+
         assert_eq!(doc.as_str(), "# lang\n\nlang meaning is idk...\n");
     }
 }

@@ -1,6 +1,7 @@
 mod dict_handler;
 mod error;
 mod server;
+mod text_document;
 
 use clap::Parser;
 use shadow_rs::shadow;
@@ -33,7 +34,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
         .with_writer(std::io::stderr)
         .init();
 
-    let server = server::Etymora::init()?;
+    let server = server::Etymora::init().await?;
 
     server.main_loop().await?;
 
