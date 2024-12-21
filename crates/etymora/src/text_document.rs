@@ -18,6 +18,8 @@ pub(crate) enum FsError {
     WrongScheme,
     #[error("{0}")]
     IoError(#[source] tokio::io::Error),
+    #[error("Wrong position")]
+    WrongPosition,
 }
 
 #[derive(Debug, Default)]
@@ -66,7 +68,7 @@ impl FileSystem {
             current_line += 1;
         }
 
-        Ok("".into())
+        Err(FsError::WrongPosition)
     }
 
     /// A wrapped function for `read_word`
