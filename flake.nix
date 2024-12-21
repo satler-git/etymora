@@ -93,16 +93,22 @@
           };
 
           pre-commit = {
-            settings.hooks = {
-              flake-treefmt = {
-                enable = true;
-                name = "flake-treefmt";
-                entry = lib.getExe config.treefmt.build.wrapper;
-                pass_filenames = false;
+            settings = {
+              hooks = {
+                flake-treefmt = {
+                  enable = true;
+                  name = "flake-treefmt";
+                  entry = lib.getExe config.treefmt.build.wrapper;
+                  pass_filenames = false;
+                };
+
+                clippy.enable = true;
+                cargo-check.enable = true;
               };
 
-              # clippy.enable = true;
-              # cargo-check.enable = true;
+              settings.rust.check.cargoDeps = pkgs.rustPlatform.importCargoLock {
+                lockFile = ./Cargo.lock;
+              };
             };
           };
 
