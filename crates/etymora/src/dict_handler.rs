@@ -38,7 +38,7 @@ impl etymora_traits::Dictionary for Dicts {
     async fn lookup_ditail(
         &self,
         word: &etymora_traits::Word,
-    ) -> Result<etymora_traits::markdown_builder::Markdown, Self::Error> {
+    ) -> Result<Option<etymora_traits::markdown_builder::Markdown>, Self::Error> {
         match self {
             Dicts::ExampleDict(d) => d
                 .lookup_ditail(word)

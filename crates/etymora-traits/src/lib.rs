@@ -9,7 +9,7 @@ impl Word {
     }
 }
 
-fn from_markdown(value: markdown_builder::Markdown) -> lsp_types::MarkupContent {
+pub fn from_markdown(value: markdown_builder::Markdown) -> lsp_types::MarkupContent {
     lsp_types::MarkupContent {
         kind: lsp_types::MarkupKind::Markdown,
         value: value.render(),
@@ -45,7 +45,7 @@ pub trait Dictionary: Sized {
     fn lookup_ditail(
         &self,
         word: &Word,
-    ) -> impl std::future::Future<Output = Result<markdown_builder::Markdown, Self::Error>> + Send;
+    ) -> impl std::future::Future<Output = Result<Option<markdown_builder::Markdown>, Self::Error>> + Send;
 }
 
 #[cfg(test)]
