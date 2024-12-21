@@ -19,15 +19,22 @@ use crate::{
     text_document::FileSystem,
 };
 
-use tracing::{debug, info};
+use tracing::{debug, info, warn};
 
 /// Server State
 pub(crate) struct Etymora {
     connection: Connection,
     io_threads: IoThreads,
-    params: InitializeParams, // TODO: user config
+    #[allow(dead_code)]
+    config: Config,
     dict: Option<dict_handler::Dicts>,
     fs: FileSystem,
+}
+
+#[derive(Debug, serde::Deserialize, Default)]
+struct Config {
+    #[serde(flatten)]
+    dict_config: dict_handler::DictConfigs,
 }
 
 impl Etymora {
@@ -63,12 +70,21 @@ impl Etymora {
             }
         };
 
+        let config: Config = if let Some(options) = params.initialization_options {
+            serde_json::from_value(options).map_err(EtymoraError::DesirializeError)?
+        } else {
+            warn!("InitializeOptions is empty. Using the default Config");
+            Config::default()
+        };
+
+        let dict = Some(dict_handler::Dicts::init(&config.dict_config).await?);
+
         Ok(Etymora {
             connection,
             io_threads,
-            params,
+            config,
+            dict,
             fs: FileSystem::default(),
-            dict: None,
         })
     }
 

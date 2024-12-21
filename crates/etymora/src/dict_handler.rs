@@ -13,6 +13,12 @@ pub(crate) enum DictConfigs {
     Example(<adapter_example::ExampleDictionary as Dictionary>::InitInput),
 }
 
+impl Default for DictConfigs {
+    fn default() -> Self {
+        DictConfigs::Example(())
+    }
+}
+
 impl etymora_traits::Dictionary for Dicts {
     type Error = EtymoraError;
     type InitInput = DictConfigs;

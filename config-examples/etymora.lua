@@ -7,7 +7,9 @@ configs.etymora = {
     cmd = { "etymora" },
     -- filetypes = { "markdown" },
     root_dir = util.root_pattern(".git", "Cargo.toml"),
-    init_options = {},
+    init_options = {
+      example = {},
+    },
   },
   docs = {
     description = [[
