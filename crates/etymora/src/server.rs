@@ -143,7 +143,7 @@ impl Etymora {
 
         if word.is_none() | self.dict.is_none() {
             // ワードがない場合はなにもなく返す
-            info!("No word found");
+            info!("No word or dictionary found");
             return Ok(None);
         }
 
