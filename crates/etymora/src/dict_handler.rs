@@ -8,18 +8,19 @@ pub(crate) enum Dicts {
 }
 
 #[derive(Debug, Serialize, Deserialize)]
+#[serde(rename_all = "snake_case")]
 pub(crate) enum DictConfigs {
-    ExampleDict(<adapter_example::ExampleDictionary as Dictionary>::InitInput),
+    Example(<adapter_example::ExampleDictionary as Dictionary>::InitInput),
 }
 
 impl etymora_traits::Dictionary for Dicts {
     type Error = EtymoraError;
     type InitInput = DictConfigs;
 
-    async fn init(input: Self::InitInput) -> Result<Self, Self::Error> {
+    async fn init(input: &Self::InitInput) -> Result<Self, Self::Error> {
         match input {
-            DictConfigs::ExampleDict(p) => Ok(Dicts::ExampleDict(
-                adapter_example::ExampleDictionary::init(p)
+            DictConfigs::Example(p) => Ok(Dicts::ExampleDict(
+                adapter_example::ExampleDictionary::init(&p)
                     .await
                     .map_err(EtymoraError::ExampleAdapterError)?,
             )),

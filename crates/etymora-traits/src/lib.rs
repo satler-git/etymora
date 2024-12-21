@@ -34,7 +34,7 @@ pub trait Dictionary: Sized {
     type InitInput: serde::Serialize;
 
     fn init(
-        input: Self::InitInput,
+        input: &Self::InitInput,
     ) -> impl std::future::Future<Output = Result<Self, Self::Error>> + Send;
 
     fn exits(

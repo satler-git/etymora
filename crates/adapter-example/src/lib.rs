@@ -15,7 +15,7 @@ impl Dictionary for ExampleDictionary {
     type Error = ExampleError;
     type InitInput = ();
 
-    async fn init(_: Self::InitInput) -> Result<Self, Self::Error> {
+    async fn init(_: &Self::InitInput) -> Result<Self, Self::Error> {
         Ok(ExampleDictionary)
     }
 

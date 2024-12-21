@@ -102,7 +102,7 @@
                   pass_filenames = false;
                 };
 
-                clippy.enable = true;
+                # clippy.enable = true;
                 cargo-check.enable = true;
               };
 

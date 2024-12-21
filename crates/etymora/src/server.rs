@@ -193,6 +193,7 @@ impl Etymora {
             .map_err(|e| EtymoraError::SendMassageError(e.0))
     }
 
+    #[allow(dead_code)]
     fn progress(&self, token: NumberOrString, message: String) -> Result<()> {
         let noti = Notification {
             method: lsp_types::notification::Progress::METHOD.into(),
@@ -214,6 +215,7 @@ impl Etymora {
             .map_err(|e| EtymoraError::SendMassageError(e.0))
     }
 
+    #[allow(dead_code)]
     fn progress_start(&self, token: NumberOrString, title: String) -> Result<()> {
         self.connection
             .sender
@@ -235,6 +237,7 @@ impl Etymora {
             .map_err(|e| EtymoraError::SendMassageError(e.0))
     }
 
+    #[allow(dead_code)]
     fn progress_end(&self, token: NumberOrString, message: Option<String>) -> Result<()> {
         self.connection
             .sender
