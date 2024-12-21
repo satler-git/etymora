@@ -8,6 +8,7 @@ use lsp_types::Position;
 use rustc_hash::FxHashMap;
 
 use std::path::PathBuf;
+use std::sync::{Arc, RwLock};
 use tokio::fs;
 use tokio::io::{AsyncBufReadExt, AsyncSeekExt, BufReader, SeekFrom};
 
@@ -21,7 +22,7 @@ pub(crate) enum FsError {
 
 #[derive(Debug, Default)]
 pub(crate) struct FileSystem {
-    map: FxHashMap<PathBuf, fs::File>,
+    map: Arc<RwLock<FxHashMap<PathBuf, fs::File>>>,
 }
 
 fn try_from_uri(value: &lsp_types::Uri) -> Result<PathBuf, FsError> {
@@ -37,15 +38,19 @@ fn try_from_uri(value: &lsp_types::Uri) -> Result<PathBuf, FsError> {
 }
 
 impl FileSystem {
-    async fn read_line(&mut self, path: &PathBuf, position: &Position) -> Result<String, FsError> {
-        if !self.map.contains_key(path) {
-            self.map.insert(
+    async fn read_line(&self, path: &PathBuf, position: &Position) -> Result<String, FsError> {
+        let mut map = self.map.write().unwrap();
+        // TODO:
+        // Errorに
+        if !map.contains_key(path) {
+            // Error型に
+            map.insert(
                 path.clone(),
                 fs::File::open(&path).await.map_err(FsError::IoError)?,
             );
         }
 
-        let file = self.map.get_mut(path).unwrap(); // TODO: 多分IO重い
+        let file = map.get_mut(path).unwrap(); // TODO: 多分IO重い
 
         file.seek(SeekFrom::Start(0))
             .await
@@ -68,7 +73,7 @@ impl FileSystem {
 
     /// A wrapped function for `read_word`
     pub(crate) async fn read_word_uri(
-        &mut self,
+        &self,
         uri: &lsp_types::Uri,
         position: &Position,
     ) -> Result<Word, FsError> {
@@ -77,7 +82,7 @@ impl FileSystem {
 
     /// read word
     pub(crate) async fn read_word(
-        &mut self,
+        &self,
         path: &PathBuf,
         position: &Position,
     ) -> Result<Word, FsError> {
