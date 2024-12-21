@@ -130,7 +130,7 @@ impl Etymora {
         todo!() // TODO:
     }
 
-    fn dispacth<R>(&self, res: Either<ResponseError, R>, id: RequestId) -> Result<()>
+    fn dispacth<R>(&self, res: Either<ResponseError, Option<R>>, id: RequestId) -> Result<()>
     where
         R: serde::Serialize,
     {
@@ -141,7 +141,7 @@ impl Etymora {
                 error: Some(error),
             },
             Either::Right(result) => {
-                let result = serde_json::to_value(&Some(result)).unwrap();
+                let result = serde_json::to_value(&result).unwrap();
                 Response {
                     id,
                     result: Some(result),
@@ -153,9 +153,69 @@ impl Etymora {
         self.connection
             .sender
             .send(Message::Response(resp))
-            .map_err(|e| EtymoraError::SendMassageError(e.0))?;
+            .map_err(|e| EtymoraError::SendMassageError(e.0))
+    }
 
-        Ok(())
+    fn progress(&self, token: NumberOrString, message: String) -> Result<()> {
+        let noti = Notification {
+            method: lsp_types::notification::Progress::METHOD.into(),
+            params: serde_json::to_value(lsp_types::ProgressParams {
+                token,
+                value: lsp_types::ProgressParamsValue::WorkDone(
+                    lsp_types::WorkDoneProgress::Report(WorkDoneProgressReport {
+                        message: Some(message),
+                        ..Default::default()
+                    }),
+                ),
+            })
+            .unwrap(),
+        };
+
+        self.connection
+            .sender
+            .send(Message::Notification(noti))
+            .map_err(|e| EtymoraError::SendMassageError(e.0))
+    }
+
+    fn progress_start(&self, token: NumberOrString, title: String) -> Result<()> {
+        self.connection
+            .sender
+            .send(lsp_server::Message::Notification(
+                lsp_server::Notification {
+                    method: lsp_types::notification::Progress::METHOD.into(),
+                    params: serde_json::to_value(lsp_types::ProgressParams {
+                        token,
+                        value: lsp_types::ProgressParamsValue::WorkDone(
+                            lsp_types::WorkDoneProgress::Begin(lsp_types::WorkDoneProgressBegin {
+                                title,
+                                ..Default::default()
+                            }),
+                        ),
+                    })
+                    .unwrap(),
+                },
+            ))
+            .map_err(|e| EtymoraError::SendMassageError(e.0))
+    }
+
+    fn progress_end(&self, token: NumberOrString, message: Option<String>) -> Result<()> {
+        self.connection
+            .sender
+            .send(lsp_server::Message::Notification(
+                lsp_server::Notification {
+                    method: lsp_types::notification::Progress::METHOD.into(),
+                    params: serde_json::to_value(lsp_types::ProgressParams {
+                        token,
+                        value: lsp_types::ProgressParamsValue::WorkDone(
+                            lsp_types::WorkDoneProgress::End(lsp_types::WorkDoneProgressEnd {
+                                message,
+                            }),
+                        ),
+                    })
+                    .unwrap(),
+                },
+            ))
+            .map_err(|e| EtymoraError::SendMassageError(e.0))
     }
 }
 
