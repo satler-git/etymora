@@ -33,7 +33,6 @@ pub(crate) struct Etymora {
 
 #[derive(Debug, serde::Deserialize, Default)]
 struct Config {
-    #[serde(flatten)]
     dict_config: dict_handler::DictConfigs,
 }
 

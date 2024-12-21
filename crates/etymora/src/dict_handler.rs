@@ -1,5 +1,4 @@
 use crate::error::EtymoraError;
-use etymora_traits::Dictionary;
 use serde::{Deserialize, Serialize};
 
 #[derive(Debug)]
@@ -10,12 +9,12 @@ pub(crate) enum Dicts {
 #[derive(Debug, Serialize, Deserialize)]
 #[serde(rename_all = "snake_case")]
 pub(crate) enum DictConfigs {
-    Example(<adapter_example::ExampleDictionary as Dictionary>::InitInput),
+    Example,
 }
 
 impl Default for DictConfigs {
     fn default() -> Self {
-        DictConfigs::Example(())
+        DictConfigs::Example
     }
 }
 
@@ -25,8 +24,8 @@ impl etymora_traits::Dictionary for Dicts {
 
     async fn init(input: &Self::InitInput) -> Result<Self, Self::Error> {
         match input {
-            DictConfigs::Example(p) => Ok(Dicts::ExampleDict(
-                adapter_example::ExampleDictionary::init(p)
+            DictConfigs::Example => Ok(Dicts::ExampleDict(
+                adapter_example::ExampleDictionary::init(&())
                     .await
                     .map_err(EtymoraError::ExampleAdapter)?,
             )),
