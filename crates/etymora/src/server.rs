@@ -2,18 +2,21 @@
 
 use either::Either;
 
+use etymora_traits::Dictionary;
 use lsp_server::{
-    Connection, ExtractError, IoThreads, Message, RequestId, Response, ResponseError,
+    Connection, ExtractError, IoThreads, Message, Notification, RequestId, Response, ResponseError,
 };
 use lsp_types::{
+    notification::Notification as _,
     request::{HoverRequest, Request as _},
-    Hover, HoverParams, HoverProviderCapability, InitializeParams, ServerCapabilities,
+    Hover, HoverParams, HoverProviderCapability, InitializeParams, NumberOrString,
+    ServerCapabilities, WorkDoneProgressReport,
 };
 
 use crate::{
     dict_handler,
     error::{EtymoraError, Result},
-    text_document::{self, FileSystem},
+    text_document::FileSystem,
 };
 
 use tracing::{debug, info};
@@ -36,7 +39,7 @@ impl Etymora {
         ServerCapabilities {
             hover_provider: Some(HoverProviderCapability::Options(lsp_types::HoverOptions {
                 work_done_progress_options: lsp_types::WorkDoneProgressOptions {
-                    work_done_progress: Some(true),
+                    work_done_progress: Some(false),
                 },
             })),
             ..Default::default()
@@ -126,8 +129,42 @@ impl Etymora {
         }
     }
 
-    pub(crate) async fn handle_hover(&self, _params: HoverParams) -> Result<Hover> {
-        todo!() // TODO:
+    pub(crate) async fn handle_hover(&self, params: HoverParams) -> Result<Option<Hover>> {
+        info!("Handling hover");
+
+        let word = self
+            .fs
+            .read_word_uri(
+                &params.text_document_position_params.text_document.uri,
+                &params.text_document_position_params.position,
+            )
+            .await
+            .map_err(EtymoraError::FsError)?;
+
+        if word.is_none() | self.dict.is_none() {
+            // ワードがない場合はなにもなく返す
+            info!("No word found");
+            return Ok(None);
+        }
+
+        let word = word.unwrap();
+
+        let desc = self.dict.as_ref().unwrap().lookup_ditail(&word).await?;
+
+        if desc.is_none() {
+            // 説明がない場合はなにもなく返す
+            info!("No description found");
+            return Ok(None);
+        }
+
+        let desc = lsp_types::HoverContents::Markup(etymora_traits::from_markdown(desc.unwrap()));
+
+        let resp = Hover {
+            contents: desc,
+            range: None, // TODO: `read_word_uri` の構造を変えないと対応できない
+        };
+
+        Ok(Some(resp))
     }
 
     fn dispacth<R>(&self, res: Either<ResponseError, Option<R>>, id: RequestId) -> Result<()>
