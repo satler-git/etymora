@@ -40,8 +40,6 @@ fn try_from_uri(value: &lsp_types::Uri) -> Result<PathBuf, FsError> {
 impl FileSystem {
     async fn read_line(&self, path: &PathBuf, position: &Position) -> Result<String, FsError> {
         let mut map = self.map.write().unwrap();
-        // TODO:
-        // Errorに
         if !map.contains_key(path) {
             // Error型に
             map.insert(
@@ -50,7 +48,7 @@ impl FileSystem {
             );
         }
 
-        let file = map.get_mut(path).unwrap(); // TODO: 多分IO重い
+        let file = map.get_mut(path).unwrap();
 
         file.seek(SeekFrom::Start(0))
             .await
