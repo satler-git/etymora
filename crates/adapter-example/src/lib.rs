@@ -2,7 +2,7 @@ use etymora_traits::markdown_builder::{Link, Markdown};
 use etymora_traits::{Dictionary, Word};
 use thiserror::Error;
 
-#[derive(Debug, serde::Serialize)]
+#[derive(Debug)]
 pub struct ExampleDictionary;
 
 #[derive(Debug, Error, PartialEq, Eq)]

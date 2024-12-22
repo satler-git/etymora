@@ -124,6 +124,16 @@
             }
           );
 
+          packages.tsv2Parquet = craneLib.buildPackage (
+            commonArgs
+            // {
+              inherit cargoArtifacts;
+              pname = "tsv2Parquet";
+              version = (builtins.fromTOML (builtins.readFile ./Cargo.toml)).workspace.package.version;
+              cargoExtraArgs = "-p adapter-wiktionary --features=tsv2Parquet --bin=tsv2Parquet";
+            }
+          );
+
           devShells.default = pkgs.mkShell {
             inputsFrom = [ config.pre-commit.devShell ];
 
