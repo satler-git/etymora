@@ -14,6 +14,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "adapter-wiktionary"
+version = "0.1.0"
+dependencies = [
+ "etymora-traits",
+ "serde",
+ "thiserror",
+ "tokio",
+ "tracing",
+]
+
+[[package]]
 name = "addr2line"
 version = "0.24.2"
 source = "registry+https://github.com/rust-lang/crates.io-index"
