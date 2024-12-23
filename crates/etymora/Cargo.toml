@@ -31,7 +31,8 @@ tracing-subscriber = "0.3.18"
 either       = "1.13.0"
 jemallocator = { version = "0.5.4", optional = true }
 mimalloc     = { version = "0.1.43", optional = true }
-rustc-hash   = "2.1.0"
+
+rustc-hash.workspace = true
 
 [build-dependencies]
 shadow-rs = "0.37.0"

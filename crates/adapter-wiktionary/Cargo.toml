@@ -9,31 +9,15 @@ publish.workspace      = true
 rust-version.workspace = true
 
 [dependencies]
-duckdb              = { version = "1.1.1", features = ["parquet"] }
-etymora-traits      = { path = "../etymora-traits/" }
-serde.workspace     = true
-thiserror.workspace = true
-tracing.workspace   = true
+etymora-traits       = { path = "../etymora-traits/" }
+rustc-hash.workspace = true
+serde.workspace      = true
+thiserror.workspace  = true
+tracing.workspace    = true
 
-[dependencies.tokio]
-optional  = true
-workspace = true
+tokio.workspace = true
 
-[dependencies.anyhow]
-optional = true
-version  = "1.0"
+# etymora-macros = { path = "../etymora-macros/" }
 
 [dev-dependencies]
 tokio.workspace = true
-
-
-[features]
-tsv2Parquet = ["tokio", "anyhow"]
-
-
-[lib]
-path = "src/lib.rs"
-
-[[bin]]
-name              = "tsv2Parquet"
-required-features = ["tsv2Parquet"]
