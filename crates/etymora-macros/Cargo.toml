@@ -1,0 +1,17 @@
+[package]
+name                   = "etymora-macros"
+version.workspace      = true
+authors.workspace      = true
+edition.workspace      = true
+license.workspace      = true
+repository.workspace   = true
+publish.workspace      = true
+rust-version.workspace = true
+
+[dependencies]
+proc-macro2 = "1.0.92"
+quote       = "1.0.37"
+syn         = "2.0.91"
+
+[lib]
+proc-macro = true
