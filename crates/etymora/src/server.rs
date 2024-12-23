@@ -9,7 +9,7 @@ use lsp_server::{
 use lsp_types::{
     notification::Notification as _,
     request::{HoverRequest, Request as _},
-    Hover, HoverParams, HoverProviderCapability, InitializeParams, NumberOrString,
+    Hover, HoverParams, HoverProviderCapability, InitializeParams, MarkupContent, NumberOrString,
     ServerCapabilities, WorkDoneProgressReport,
 };
 
@@ -169,7 +169,10 @@ impl Etymora {
             return Ok(None);
         }
 
-        let desc = lsp_types::HoverContents::Markup(etymora_traits::from_markdown(desc.unwrap()));
+        let desc = lsp_types::HoverContents::Markup(MarkupContent {
+            kind: lsp_types::MarkupKind::Markdown,
+            value: desc.unwrap(),
+        });
 
         let resp = Hover {
             contents: desc,

@@ -7,10 +7,12 @@ use etymora_traits::Word;
 use lsp_types::Position;
 use rustc_hash::FxHashMap;
 
-use std::path::PathBuf;
-use std::sync::{Arc, RwLock};
-use tokio::fs;
-use tokio::io::{AsyncBufReadExt, AsyncSeekExt, BufReader, SeekFrom};
+use std::{path::PathBuf, sync::Arc};
+use tokio::{
+    fs,
+    io::{AsyncBufReadExt, AsyncSeekExt, BufReader, SeekFrom},
+    sync::RwLock,
+};
 
 #[derive(Debug, thiserror::Error)]
 pub(crate) enum FsError {
@@ -41,7 +43,7 @@ fn try_from_uri(value: &lsp_types::Uri) -> Result<PathBuf, FsError> {
 
 impl FileSystem {
     async fn read_line(&self, path: &PathBuf, position: &Position) -> Result<String, FsError> {
-        let mut map = self.map.write().unwrap();
+        let mut map = self.map.write().await;
         if !map.contains_key(path) {
             // Error型に
             map.insert(

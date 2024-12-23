@@ -1,4 +1,3 @@
-use etymora_traits::markdown_builder::{Link, Markdown};
 use etymora_traits::{Dictionary, Word};
 use thiserror::Error;
 
@@ -11,7 +10,7 @@ pub enum ExampleError {
     Error,
 }
 
-const CONFIG_URL: &'static str =
+const CONFIG_URL: &str =
     "https://github.com/satler-git/etymora/blob/main/config-examples/etymora.lua";
 
 impl Dictionary for ExampleDictionary {
@@ -28,18 +27,15 @@ impl Dictionary for ExampleDictionary {
     }
 
     #[tracing::instrument]
-    async fn lookup_ditail(&self, word: &Word) -> Result<Option<Markdown>, Self::Error> {
-        let mut doc = Markdown::new();
+    async fn lookup_ditail(&self, word: &Word) -> Result<Option<String>, Self::Error> {
+        let doc = format!(
+            "# {word}
 
-        doc.header1(format!("{word}"));
+This message will may be seen when you didn't add the dictionary configuration.
 
-        doc.paragraph(
-            "This message will may be seen when you didn't add the dictionary configuration.",
+The sample configuration can be viewed [here]({CONFIG_URL}).
+"
         );
-
-        doc.paragraph(format!(
-            "The sample configuration can be viewed [here]({CONFIG_URL})."
-        ));
 
         Ok(Some(doc))
     }
@@ -58,13 +54,8 @@ mod tests {
     #[tokio::test]
     async fn text_example_render() {
         let dict = ExampleDictionary;
-        let doc = dict
-            .lookup_ditail(&"lang".into())
-            .await
-            .unwrap()
-            .unwrap()
-            .render();
+        let doc = dict.lookup_ditail(&"lang".into()).await.unwrap().unwrap();
 
-        assert_eq!(doc.as_str(), "# lang\n\nThis message will may be seen when you didn't add the dictionary configuration.\n\nThe sample configuration can be viewed\n[here](https://github.com/satler-git/etymora/blob/main/config-examples/etymora.lua).\n");
+        assert_eq!(doc.as_str(), "# lang\n\nThis message will may be seen when you didn't add the dictionary configuration.\n\nThe sample configuration can be viewed [here](https://github.com/satler-git/etymora/blob/main/config-examples/etymora.lua).\n");
     }
 }
